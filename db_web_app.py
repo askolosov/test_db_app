@@ -16,7 +16,7 @@ page_tpl = """
        1965 and were hired after Janary 1, 1990:</p>
     <table>
         <thead>
-            <th>First Name</th><th>Last name</th>
+            <th>Last name</th><th>First Name</th>
         </thead>
         <tbody>
         % for r in rows:
@@ -43,9 +43,9 @@ def index():
     hire_date = '1990-01-01'
     
     c.execute("""
-    SELECT first_name, last_name FROM employees 
+    SELECT last_name, first_name FROM employees 
     WHERE gender = %s AND birth_date = %s AND hire_date > %s 
-    ORDER BY first_name, last_name""", (gender, birth_date, hire_date))
+    ORDER BY last_name, first_name""", (gender, birth_date, hire_date))
 
     return template(page_tpl, rows=c.fetchall())
 
