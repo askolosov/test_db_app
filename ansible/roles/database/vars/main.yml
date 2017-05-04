@@ -1,0 +1,4 @@
+---
+mysql_data_dir: /var/lib/mysql_container/data
+mysql_bind_address: 127.0.0.1
+image_name: mysql:latest

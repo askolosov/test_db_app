@@ -1,0 +1,50 @@
+---
+- name: setup mysql client and python module
+  become: yes
+  apt: pkg="{{ item }}" state=present
+  with_items:
+    - mysql-client
+    - python-mysqldb
+
+- name: create a directory for mysql data
+  become: yes  
+  file: path="{{ mysql_data_dir }}" state=directory
+    
+- name: run mysql container
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    env:
+      MYSQL_ROOT_PASSWORD: "{{ root_password }}"
+    image: "{{ image_name }}"
+    ports:
+      - "{{ mysql_bind_address }}:3306:3306"
+    volumes:
+      - "{{ mysql_data_dir }}:/var/lib/mysql"
+
+- name: get the database dump
+  git:
+    repo: "https://github.com/datacharmer/test_db.git"
+    dest: "{{ ansible_user_dir }}/test_db"
+    accept_hostkey: yes
+
+- name: wait for MySQL to become ready for conections
+  wait_for:
+    port: 3306
+    search_regex: '^J'
+    
+- name: load DB dump
+  shell: "cat employees.sql | mysql -h {{ mysql_bind_address }} -u root -p{{ root_password }}"
+  args:
+    chdir: "{{ ansible_user_dir }}/test_db"
+    creates: "{{ mysql_data_dir }}/employees"
+
+- name: grant access to the DB for the specified user
+  mysql_user:
+    login_host: "{{ mysql_bind_address }}"
+    login_user: root
+    login_password: "{{ root_password }}"
+    name: "{{ db_user }}"
+    password: "{{ db_password }}"
+    priv: "employees.*:ALL"
+    host: "%"

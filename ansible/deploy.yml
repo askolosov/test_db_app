@@ -1,0 +1,44 @@
+---
+- hosts: all
+  roles:
+    - docker_host
+    
+    - { role: database,
+        container_name: "{{ docker.mysql_container }}",
+        root_password: "{{ mysql.root_password }}",
+        db_user: "{{ mysql.db_user }}",
+        db_password: "{{ mysql.db_password }}" }
+        
+    - { role: webserver,
+        container_name: "{{ docker.nginx_container }}",
+        app_container_name: "{{ docker.app_container }}" }
+  tasks:
+    - name: create docker network
+      become: yes
+      docker_network:
+        name: "{{ docker.app_network }}"
+
+    - name: run application container
+      become: yes
+      docker_container:
+        name: "{{ docker.app_container }}"
+        image: "{{ docker.app_image }}"
+        pull: yes
+        env:
+          DB_HOST: "{{ docker.mysql_container }}"
+          DB_USER: "{{ mysql.db_user }}"
+          DB_PASS: "{{ mysql.db_password }}"
+          DB_NAME: "{{ mysql.db_name }}"
+          
+    - name: add all the containers to the demo network
+      become: yes
+      docker_container:
+        name: "{{ item }}"
+        networks:
+          - name: "{{ docker.app_network }}"
+            aliases:
+              - "{{ item | lower }}"
+      with_items:
+        - "{{ docker.app_container }}"
+        - "{{ docker.mysql_container }}"
+        - "{{ docker.nginx_container }}"

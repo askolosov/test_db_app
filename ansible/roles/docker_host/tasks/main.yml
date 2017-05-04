@@ -1,0 +1,21 @@
+---
+- name: install docker packages
+  become: yes
+  apt: pkg={{ item }} state=latest update_cache=yes
+  with_items:
+    - docker.io
+    - python-docker
+
+- name: ensure docker service is enabled and started
+  become: yes
+  service: name=docker enabled=yes state=started
+
+- name: schedule docker cleanup cron job
+  become: yes  
+  cron:
+    name: "docker_cleanup"
+    special_time: daily
+    job: >
+      docker ps --all --quiet --filter='status=exited' | xargs --no-run-if-empty docker rm --volumes=true;
+      docker images --filter='dangling=true' --quiet | xargs --no-run-if-empty docker rmi;
+      docker volume ls --quiet --filter='dangling=true' | xargs --no-run-if-empty docker volume rm

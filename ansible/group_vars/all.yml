@@ -1,0 +1,12 @@
+---
+docker:
+  app_network: app_tier
+  app_container: test_db_app
+  app_image: askolosov/test_db_app
+  nginx_container: app_nginx
+  mysql_container: app_mysql
+mysql:
+  root_password: 'SOME_PASSWORD'
+  db_user: app_user
+  db_password: 'SOME_USER_PASSWORD'
+  db_name: employees

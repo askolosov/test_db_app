@@ -1,0 +1,18 @@
+---
+- name: prepare the directory for the Nginx configuration
+  become: yes
+  file: path="{{ nginx_config_dir }}" state=directory
+
+- name: configure Nginx vhost
+  become: yes
+  template: src=app_vhost.conf dest="{{ nginx_config_dir }}/"
+  
+- name: run the Nginx container
+  become: yes
+  docker_container:
+    name: "{{ container_name }}"
+    image: "{{ image_name }}"
+    volumes:
+      - "{{ nginx_config_dir }}:/etc/nginx/conf.d"
+    ports:
+      - "80:80"
