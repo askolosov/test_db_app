@@ -7,16 +7,19 @@
         container_name: "{{ docker.mysql_container }}",
         root_password: "{{ mysql.root_password }}",
         db_user: "{{ mysql.db_user }}",
-        db_password: "{{ mysql.db_password }}" }
+        db_password: "{{ mysql.db_password }}",
+        tags: ["database"]}
         
     - { role: webserver,
         container_name: "{{ docker.nginx_container }}",
-        app_container_name: "{{ docker.app_container }}" }
+        app_container_name: "{{ docker.app_container }}",
+        tags: ["webserver"]}
   tasks:
     - name: create docker network
       become: yes
       docker_network:
         name: "{{ docker.app_network }}"
+      tags: ["app"]
 
     - name: run application container
       become: yes
@@ -29,6 +32,7 @@
           DB_USER: "{{ mysql.db_user }}"
           DB_PASS: "{{ mysql.db_password }}"
           DB_NAME: "{{ mysql.db_name }}"
+      tags: ["app"]
           
     - name: add all the containers to the demo network
       become: yes
@@ -42,3 +46,4 @@
         - "{{ docker.app_container }}"
         - "{{ docker.mysql_container }}"
         - "{{ docker.nginx_container }}"
+      tags: ["app"]
