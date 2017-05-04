@@ -1,26 +1,26 @@
-Simple Python application that queries the [[https://github.com/datacharmer/test_db][sample employees database]]
+This is a simple Python application that queries the [[https://github.com/datacharmer/test_db][sample employees database]]
 for the list of all male employees, who were born at February 1, 1965
 and were hired after Janary 1, 1990.
 
 The application can be run as a Docker container. The appliction
-Docker image can be built using the provided `Dockerfile`.
+Docker image can be built using the provided =Dockerfile=.
 
-The repo also contains an Ansible playbook (`ansible/deploy.yml`) to
+The repo also contains an Ansible playbook (=ansible/deploy.yml=) to
 deploy Docker containers of the application, Nginx webserver and MySQL
 database on the given host with Ubuntu 16.04 installed.
 
 To run the playbook:
 1. Optionally build and push the application Docker image to a
    registry. Already built image of the appliction on the Docker Hub
-   is `askolosov/test_db_app`.
+   is =askolosov/test_db_app=.
 2. Indicate the name of the application Docker image in the
-   `ansible/group_vars/all.yml` file as a `docker.app_image`
+   =ansible/group_vars/all.yml= file as a =docker.app_image=
    parameter.
 3. Specify the conection parameters of the target host in the
-   `ansible/hosts` file (sample host specfiction is already in the
+   =ansible/hosts= file (sample host specfiction is already in the
    file).
 4. Run the playbook while in the repo directory (add an
-   `--ask-sudo-pass` key if you are connecting not as root):
+   =--ask-sudo-pass= key if you are connecting not as root):
 #+begin_src sh
 $ ansible-playbook -i ansible/hosts ansible/deploy.yml
 #+end_src
